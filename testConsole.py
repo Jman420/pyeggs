@@ -1,4 +1,4 @@
-import pyeggs.eggs_engine
+import pyeggs.engine
 
 print('Easter Eggs Engine Test Console')
 print('-------------------------------')

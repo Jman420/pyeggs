@@ -1,6 +1,5 @@
 import builtins, sys, os
-
-CLEAR_SCREEN_CMD = 'cls' if os.name in ('nt', 'dos') else 'clear'
+from .shared import CLEAR_SCREEN_CMD
 
 class ConsoleCapture():
     def __init__(self):
@@ -42,7 +41,7 @@ class ConsoleCapture():
         if self.enabled and cmd == CLEAR_SCREEN_CMD:
             self.buffer = ''
 
-class InputCapture():
+class EggTrigger():
     def __init__(self):
         self.origInputFunc = builtins.input
         builtins.input = self.inputFuncHandler
@@ -54,34 +53,48 @@ class InputCapture():
     def inputFuncHandler(self, msg):
         userInput = self.origInputFunc(msg)
         
-        if self.enabled and userInput in EASTER_EGGS_MAP:
-            self.enabled = False
-            consoleCapture.enabled = False
+        easterEgg = EASTER_EGGS_MAP.get(userInput, None)
+        if self.enabled and easterEgg:
+            self.executeEasterEgg(easterEgg)
             
-            EASTER_EGGS_MAP[userInput](consoleCapture.buffer)
-            
-            consoleCapture.enabled = True
-            self.enabled = True
+            easterEgg.found = True
+            eggTracker.eggsFound.append(userInput)
+            eggTracker.saveConfig()
         
         return userInput
+    
+    def executeEasterEgg(self, easterEgg):
+        self.enabled = False
+        consoleCapture.enabled = False
+        
+        easterEgg.execute(consoleCapture.buffer)
+        
+        consoleCapture.enabled = True
+        self.enabled = True
 
-def testAnimation(consoleBuffer):
-    print('Test triggered!')
+from .egg_tracker import EggTracker
+from .creator_egg import CreatorEgg
+from .splash_screen_egg import SplashScreenEgg
 
-def dumpStdout(consoleBuffer):
-    print(consoleCapture.buffer)
-
-def clearConsole(consoleBuffer):
-    os.system('cls')
-    consoleCapture.buffer = ''
-
-EASTER_EGGS_MAP = { 'test': testAnimation,
-                    'dump': dumpStdout,
-                    'clear': clearConsole
-                  }
+EASTER_EGGS_MAP = {}
 
 consoleCapture = None
-captureInput = None
+eggTrigger = None
 if not '--disable-easter-eggs' in sys.argv:
     consoleCapture = ConsoleCapture()
-    captureInput = InputCapture()
+    eggTrigger = EggTrigger()
+    eggTracker = EggTracker()
+    
+    splashScreenEgg = SplashScreenEgg()
+    EASTER_EGGS_MAP[SplashScreenEgg.trigger] = splashScreenEgg
+    
+    EASTER_EGGS_MAP[CreatorEgg.trigger] = CreatorEgg(EASTER_EGGS_MAP, splashScreenEgg)  # CreatorEgg must be last Egg registered
+    
+    for foundEgg in eggTracker.eggsFound:
+        if foundEgg in EASTER_EGGS_MAP:
+            EASTER_EGGS_MAP[foundEgg].found = True
+    
+    if not eggTracker.splashScreenPlayed:
+        eggTrigger.executeEasterEgg(splashScreenEgg)
+        eggTracker.splashScreenPlayed = True
+        eggTracker.saveConfig()
