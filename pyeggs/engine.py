@@ -1,9 +1,9 @@
 import builtins, sys, os
-from .shared import CLEAR_SCREEN_CMD
+from .shared import CLEAR_SCREEN_CMD, EMPTY_STRING
 
 class ConsoleCapture():
     def __init__(self):
-        self.buffer = ''
+        self.buffer = EMPTY_STRING
         
         self.origInputFunc = builtins.input
         builtins.input = self.inputFuncHandler
@@ -39,7 +39,7 @@ class ConsoleCapture():
         self.origSystemFunc(cmd)
         
         if self.enabled and cmd == CLEAR_SCREEN_CMD:
-            self.buffer = ''
+            self.buffer = EMPTY_STRING
 
 class EggTrigger():
     def __init__(self):

@@ -4,7 +4,7 @@ CHANGES
 0.1.0
 -----
 
-* Fixes for packaging
-* Remove version metadata from setup.cfg (use PBR postversioning instead)
+* Initial Release   - Splash Screen & Creator Eggs Only
+* Fully Functional Engine
 * Functional Console & Input Intercept Functionality
 * Initial commit
