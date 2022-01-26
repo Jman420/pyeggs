@@ -9,6 +9,7 @@ NORMAL_DELAY = 0.3
 FAST_DELAY = NORMAL_DELAY / 2.0
 LOADING_MSG = '...'
 SUCCESSFUL_MSG = 'done!'
+ANSI_BACKSPACE = '\b'
 
 SPLASH_HINT = \
 """Children love making me,
@@ -81,7 +82,7 @@ class SplashScreenEgg(EggBase):
         self.printLoadingMsg()
         actionTaken = 'terminating'
         self.writeConsole(actionTaken)
-        self.writeConsole('\b' * len(actionTaken), charDelay=FAST_DELAY)
+        self.writeConsole(ANSI_BACKSPACE * len(actionTaken), charDelay=FAST_DELAY)
         self.writeConsole('continuing ', charDelay=FAST_DELAY, endChar=NEW_LINE_CHAR)
         
         self.writeConsole('------END ERROR HANDLING------', endChar=NEW_LINE_CHAR)
